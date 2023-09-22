@@ -1,7 +1,7 @@
 # King County House Sales
 An interactive dashboard with a calendar widget 
 
-[Tableau Public](https://public.tableau.com/views/KingCountyHouseSales_16953324948880/KingCountyHouseSales?:language=en-US&:display_count=n&:origin=viz_share_link)
+See on Tableau Public : [Dashboard](https://public.tableau.com/views/KingCountyHouseSales_16953324948880/KingCountyHouseSales?:language=en-US&:display_count=n&:origin=viz_share_link)
 
 
 
