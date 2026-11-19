@@ -168,10 +168,15 @@ function render() {
   const goodLine = Math.min(PLAN.proteinTarget, Math.round(kg * 1.6));
   const zone = protein >= goodLine ? "perfect" : protein >= lowLine ? "good" : "low";
   const ZONES = {
-    low: protein === 0 ? "🫥 Running on vibes. Feed the muscles!" : "😱 Too low. Your muscles are packing their bags 🧳",
-    good: "👍 Good enough. Muscles staying, not flexing",
-    perfect: protein >= PLAN.proteinTarget ? "💪 Perfect! Gains locked in 🔒" : "💪 Perfect zone! Muscles are safe",
+    low: protein === 0
+      ? `🫥 Zero protein so far. Your body may start burning muscle for fuel. Eat ${lowLine - protein}g to get safe.`
+      : `😱 Too low! Your body may burn muscle for fuel. Eat ${lowLine - protein}g more to be safe.`,
+    good: `👍 Good enough: muscle is protected, but it won't grow much. ${goodLine - protein}g more for perfect.`,
+    perfect: protein >= PLAN.proteinTarget
+      ? "💪 Perfect! Muscle protected and ready to grow. Fat loss, not muscle loss 🔒"
+      : `💪 Perfect zone! Muscle is protected and can grow. ${PLAN.proteinTarget - protein}g more to max out.`,
   };
+
   const pct = (g) => Math.min(100, (g / PLAN.proteinTarget) * 100);
   $("protTrack").style.setProperty("--low", pct(lowLine) + "%");
   $("protTrack").style.setProperty("--good", pct(goodLine) + "%");
@@ -183,7 +188,7 @@ function render() {
   const protMet = protein >= PLAN.proteinTarget;
   $("protEaten").textContent = protein;
   $("protTarget").textContent = PLAN.proteinTarget;
-  $("protFoot").textContent = protMet ? "Beast mode 💪" : `${proteinLeft}g to ${PLAN.proteinTarget} · resets at midnight`;
+  $("protFoot").textContent = "Resets at midnight";
   $("steps").textContent = fmt(today.steps);
   $("stepFoot").textContent = today.steps >= stepGoal ? "Goal smashed 🎉" : `Goal ${fmt(stepGoal)}`;
 
