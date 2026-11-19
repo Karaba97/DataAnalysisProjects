@@ -168,9 +168,7 @@ function render() {
   const goodLine = Math.min(PLAN.proteinTarget, Math.round(kg * 1.6));
   const zone = protein >= goodLine ? "perfect" : protein >= lowLine ? "good" : "low";
   const ZONES = {
-    low: protein === 0
-      ? `🫥 Zero protein so far. Your body may start burning muscle for fuel. Eat ${lowLine - protein}g to get safe.`
-      : `😱 Too low! Your body may burn muscle for fuel. Eat ${lowLine - protein}g more to be safe.`,
+    low: `📞 Your muscles called. They want ${lowLine - protein}g more protein, no excuses.`,
     good: `👍 Good enough: muscle is protected, but it won't grow much. ${goodLine - protein}g more for perfect.`,
     perfect: protein >= PLAN.proteinTarget
       ? "💪 Perfect! Muscle protected and ready to grow. Fat loss, not muscle loss 🔒"
@@ -198,7 +196,7 @@ function render() {
   else if (today.debt - today.steps > 10000) coach = "That debt's a mountain 🏔️ Chip away with walks and keep plates light today.";
   else if (today.debt > today.steps) coach = "Slow and steady pays the debt. Lace up! 🐌";
   else if (!today.meals.length) coach = p === "morning" ? "Eggs, beans or omena. Start strong!" : "Don't skip! Log your first bite with the pink button.";
-  else if (zone === "low" && today.meals.length) coach = "Protein alert! 🚨 Your biceps are filing a missing person report. Eggs, kuku or omena, stat.";
+  else if (zone === "low" && today.meals.length) coach = "🚨 Your muscles called. They want extra protein, no excuses. Eggs, kuku or omena!";
   else if (proteinLeft > 40) coach = "Protein's lagging. Kuku or samaki next? 🐔🐟";
   else if (!today.steps) coach = "Food's logged. Now tell me your steps, tap the shoe 👟";
   else coach = "You're crushing it. Keep munching smart!";
