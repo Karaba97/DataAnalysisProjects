@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#FFF6EC">
+<meta name="theme-color" content="#FFE45C">
 <title>Fuel Up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,102 +14,87 @@
 
   <header class="hero" id="hero">
     <div class="hero-top">
-      <span class="date" id="date">Thursday, 19 Nov</span>
-      <span class="day-chip" id="dayChip">Day 1</span>
+      <span class="chip" id="date">Thu 19 Nov</span>
+      <span class="chip" id="dayChip">Day 1 🔥</span>
     </div>
     <div class="hero-row">
-      <div class="sun" id="sky" aria-hidden="true">☀️</div>
+      <div class="sky" id="sky" aria-hidden="true">☀️</div>
       <div>
-        <h1 id="greeting">Good afternoon, Trev</h1>
-        <p class="sub" id="subGreeting">You've had 1 meal and a snack. Here's your gauge.</p>
+        <h1 id="greeting">Yo Trev!</h1>
+        <p class="sub" id="subGreeting"></p>
       </div>
     </div>
   </header>
 
-  <section class="card gauge-card">
+  <section class="debt sticker" id="debt" hidden>
+    <span class="debt-emoji">🐌</span>
+    <div><b id="debtTitle"></b><span id="debtText"></span></div>
+  </section>
+
+  <section class="card gauge-card tilt-l">
     <div class="card-head">
-      <h2>Calories</h2>
-      <span class="pill" id="calPill">On track</span>
+      <h2>Fuel tank</h2>
+      <span class="pill" id="calPill"></span>
     </div>
     <div class="gauge-wrap">
       <svg viewBox="0 0 220 130" class="gauge" aria-hidden="true">
-        <path d="M20 115 A90 90 0 0 1 200 115" class="gauge-track"/>
-        <path d="M20 115 A90 90 0 0 1 200 115" class="gauge-fill" id="calArc"/>
+        <path d="M22 115 A88 88 0 0 1 198 115" class="gauge-track"/>
+        <path d="M22 115 A88 88 0 0 1 198 115" class="gauge-fill" id="calArc"/>
         <g id="needle" class="needle">
-          <line x1="110" y1="115" x2="110" y2="42"/>
-          <circle cx="110" cy="115" r="9"/>
+          <line x1="110" y1="115" x2="110" y2="46"/>
         </g>
-        <text x="22" y="128" class="gauge-end">E</text>
-        <text x="198" y="128" class="gauge-end" text-anchor="end">F</text>
+        <circle cx="110" cy="115" r="17" class="hub"/>
+        <text x="110" y="122" class="hub-face" id="hubFace" text-anchor="middle">😋</text>
       </svg>
-      <div class="gauge-readout">
-        <div class="big"><span id="calEaten">0</span><small> / <span id="calTarget">0</span></small></div>
-        <div class="muted"><b id="calLeft">0</b> cal left in the tank</div>
-      </div>
+      <div class="big" id="calLeftBig">610</div>
+      <div class="big-label" id="calLeftLabel">cal left</div>
+      <div class="eaten"><span id="calEaten"></span> eaten of <span id="calTarget"></span></div>
     </div>
-    <p class="note" id="targetNote"></p>
+  </section>
+
+  <section class="card action tilt-r" id="actionCard">
+    <div class="action-emoji" id="actionEmoji">🍗</div>
+    <div class="action-body">
+      <h2 id="actionTitle"></h2>
+      <p id="actionText"></p>
+    </div>
   </section>
 
   <section class="duo">
     <div class="card mini">
-      <div class="mini-icon">🥩</div>
-      <h2>Protein</h2>
-      <div class="mini-num"><span id="protEaten">0</span><small>/<span id="protTarget">140</span> g</small></div>
+      <div class="mini-top"><span class="mini-icon">🥩</span><h2>Protein</h2></div>
+      <div class="mini-num"><span id="protEaten">0</span><small>/<span id="protTarget">140</span>g</small></div>
       <div class="bar"><div class="bar-fill" id="protBar"></div></div>
       <div class="mini-foot" id="protFoot"></div>
     </div>
     <div class="card mini">
-      <div class="mini-icon">👟</div>
-      <h2>Steps</h2>
+      <div class="mini-top"><span class="mini-icon">👟</span><h2>Steps</h2></div>
       <div class="mini-num"><span id="steps">0</span></div>
       <div class="bar"><div class="bar-fill steps-fill" id="stepBar"></div></div>
       <div class="mini-foot" id="stepFoot"></div>
     </div>
   </section>
 
-  <section class="coach" id="coachCard">
+  <section class="coach">
     <div class="coach-face" aria-hidden="true">🦒</div>
-    <div class="bubble">
-      <span class="coach-name">Coach Twiga</span>
-      <p id="coach"></p>
-    </div>
-  </section>
-
-  <section class="card plan">
-    <div class="card-head">
-      <h2>Next meal plan</h2>
-      <span class="pill soft" id="mealsLeftPill">1 meal left</span>
-    </div>
-    <div class="plan-grid">
-      <div class="plan-tile">
-        <span class="lbl">Budget now</span>
-        <span class="val" id="budgetNow">0</span>
-        <span class="unit">cal</span>
-      </div>
-      <div class="plan-tile highlight">
-        <span class="lbl">For an 800-cal meal</span>
-        <span class="val" id="extraSteps">0</span>
-        <span class="unit">extra steps</span>
-      </div>
-    </div>
-    <p class="note" id="planNote"></p>
+    <div class="bubble"><p id="coach"></p></div>
   </section>
 
   <section class="card">
     <div class="card-head">
-      <h2>Today's plate</h2>
-      <span class="muted small" id="mealCount"></span>
+      <h2>Today's grub</h2>
+      <span class="pill soft" id="mealCount"></span>
     </div>
     <ul class="meals" id="meals"></ul>
   </section>
 
-  <p class="footer-note">Step 1 preview · sample data · logging comes next</p>
+  <p class="footer-note">Sneak peek · sample data</p>
 </main>
 
 <nav class="tabbar" aria-label="Main">
   <button class="tab active"><span>🏠</span>Today</button>
   <button class="tab add" aria-label="Log a meal"><span>＋</span></button>
-  <button class="tab"><span>🏆</span>Progress</button>
+  <button class="tab"><span>🏆</span>Wins</button>
 </nav>
 
 <script src="app.js"></script>
