@@ -288,7 +288,7 @@ $("fPick").addEventListener("change", (e) => {
   const [kind, i] = e.target.value.split(":");
   const item = kind === "fav" ? loadFavs()[i] : kind === "kc" ? CLASSICS[i] : null;
   if (!item) return;
-  $("fName").value = item.name; $("fCal").value = item.cal; $("fProt").value = item.protein;
+  $("fName").value = item.name; setFoodCal(item.cal); $("fProt").value = item.protein;
   updateTotal();
   pickedName = item.name;
   $("fFav").checked = false;
@@ -297,7 +297,7 @@ $("fPick").addEventListener("change", (e) => {
 // Typing a different food clears the picked numbers so they don't stick around.
 $("fName").addEventListener("input", () => {
   if (pickedName && $("fName").value.trim() !== pickedName) {
-    $("fCal").value = ""; $("fProt").value = ""; $("fPick").value = "";
+    setFoodCal(""); $("fProt").value = ""; $("fPick").value = "";
     updateTotal();
     pickedName = null; $("fFav").parentElement.hidden = false;
   }
@@ -334,7 +334,7 @@ $("photoClear").addEventListener("click", clearPhoto);
 
 $("addBtn").addEventListener("click", () => {
   $("mealForm").reset();
-  clearPhoto(); fillPicker(); pickedName = null; aiEmoji = null; setAiNote(""); setOil(0);
+  clearPhoto(); fillPicker(); pickedName = null; aiEmoji = null; setAiNote(""); baseCal = ""; setOil(0);
   $("fFav").parentElement.hidden = false;
   const n = new Date();
   $("fTime").value = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
@@ -344,7 +344,7 @@ $("mealForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const name = $("fName").value.trim();
   const oilCal = Math.round(oilTbsp * OIL_CAL);
-  const cal = Math.max(0, +$("fCal").value || 0) + oilCal, protein = Math.max(0, +$("fProt").value || 0);
+  const cal = Math.max(0, +$("fCal").value || 0), protein = Math.max(0, +$("fProt").value || 0);
   const pick = CLASSICS.find((c) => c.name === name) || loadFavs().find((f) => f.name === name);
   const emoji = pick ? pick.emoji : aiEmoji || guessEmoji(name);
   const meal = { emoji, name, type: cal < SNACK_UNDER ? "snack" : "meal", time: $("fTime").value || "--:--", cal, protein };
@@ -354,7 +354,7 @@ $("mealForm").addEventListener("submit", (e) => {
   today.meals.sort((a, b) => a.time.localeCompare(b.time));
   if ($("fFav").checked) {
     const favs = loadFavs().filter((f) => f.name.toLowerCase() !== name.toLowerCase());
-    favs.unshift({ emoji, name, cal: cal - oilCal, protein });
+    favs.unshift({ emoji, name, cal: Math.max(0, cal - oilCal), protein });
     store.set("fuelup.favs", favs.slice(0, 20));
   }
   saveDays(days); closeSheets(); render();
@@ -365,7 +365,7 @@ $("mealForm").addEventListener("submit", (e) => {
 
 // ---- Claude estimates (only inside claude.ai, on the viewer's own Claude account) ----
 let ai = null, aiImages = false, aiCtl = null;
-const THINKING = ["Sniffing your plate… 👃", "Counting the ugali… 🤔", "Weighing it with my eyes… 👀", "Consulting the chapati council… 🫓"];
+const THINKING = ["Let's see the damage 👀", "Counting the chapatis… 🫓", "Weighing it with my eyes… 👀", "Asking the ugali gods 🙏", "Calculating the regret… 😅", "Sniffing your plate… 👃", "Consulting the chapati council… 🧐"];
 
 function setAiNote(text, kind) {
   $("aiNote").hidden = !text;
@@ -377,11 +377,9 @@ async function estimate() {
   if (!ai) return;
   const desc = $("fName").value.trim();
   const useImage = !!(photoFile && aiImages);
-  if (!desc && !useImage) { setAiNote("Type what you're eating or add a photo first 🍽️", "warn"); return; }
+  if (!desc && !useImage) { setAiNote(""); return; }
   if (aiCtl) aiCtl.abort();
   aiCtl = new AbortController();
-  const btn = $("aiBtn");
-  btn.disabled = true; btn.textContent = "Thinking…";
   setAiNote(THINKING[Math.floor(Math.random() * THINKING.length)]);
   const prompt =
     "You estimate nutrition for a calorie tracker used by an adult in Kenya. " +
@@ -399,7 +397,7 @@ async function estimate() {
     const protein = Math.max(0, Math.round(Number(r && r.protein) || 0));
     if (r && r.name && !desc) $("fName").value = String(r.name).slice(0, 60);
     if (r && r.name && desc && /not food/i.test(r.name)) $("fName").value = desc;
-    $("fCal").value = cal; $("fProt").value = protein;
+    setFoodCal(cal); $("fProt").value = protein;
     updateTotal();
     aiEmoji = r && typeof r.emoji === "string" ? r.emoji.slice(0, 4) : null;
     pickedName = null;
@@ -411,9 +409,8 @@ async function estimate() {
       $("photoHint").textContent = "Looking good!";
     } else if (e && e.code === "rate_limited") setAiNote("Claude needs a breather. Type the numbers in for now 😮‍💨", "warn");
     else if (e && e.code === "image_rejected") setAiNote("Couldn't read that photo. Try another one 📸", "warn");
-    else setAiNote("Hmm, that didn't work. Tap Ask Claude to try again.", "warn");
+    else setAiNote("Hmm, Claude fumbled that one. Tweak the words to try again 🤷", "warn");
   } finally {
-    btn.disabled = false; btn.textContent = "✨ Ask Claude to estimate";
   }
 }
 let aiEmoji = null;
@@ -421,24 +418,46 @@ let aiEmoji = null;
 // Cooking oil: about 120 cal per tablespoon, added on top of the food.
 const OIL_CAL = 120;
 const OIL_LINES = { 0: "", 0.1: "+12 cal. A little spritz, very fancy 💅", 0.5: "+60 cal. A light drizzle, respect.", 1: "+120 cal. One tablespoon, the honest kind.", 2: "+240 cal. Getting slippery 🫠", 3: "+360 cal. Your chapati went for a swim 🏊" };
-let oilTbsp = 0;
+let oilTbsp = 0, baseCal = "";
+const oilCalNow = () => Math.round(oilTbsp * OIL_CAL);
+// The Calories box shows food + oil. baseCal remembers the food part.
+function setFoodCal(v) {
+  baseCal = v === "" ? "" : Math.max(0, Math.round(+v || 0));
+  syncCal();
+}
+function syncCal() {
+  const oil = oilCalNow();
+  $("fCal").value = baseCal === "" ? (oil ? oil : "") : baseCal + oil;
+  updateTotal();
+}
 function setOil(t) {
   oilTbsp = t;
   document.querySelectorAll("#oilOpts button").forEach((b) => b.classList.toggle("on", +b.dataset.tbsp === t));
   $("oilAdd").textContent = OIL_LINES[t] || "";
-  updateTotal();
+  syncCal();
 }
-// Live total: food calories + oil, shown on the oil card and the save button.
 function updateTotal() {
-  const food = Math.max(0, +$("fCal").value || 0);
-  const oil = Math.round(oilTbsp * OIL_CAL);
-  const total = food + oil;
-  $("oilTotal").textContent = oil ? `Total: ${fmt(total)} cal (${fmt(food)} food + ${fmt(oil)} oil)` : food ? `Total: ${fmt(total)} cal` : "";
+  const total = Math.max(0, +$("fCal").value || 0);
+  const oil = oilCalNow();
+  $("oilTotal").textContent = oil && total ? `Calories now ${fmt(total)} (includes ${fmt(oil)} from oil)` : "";
   $("gobbleBtn").textContent = total ? `Gobble it! ${fmt(total)} cal 🍴` : "Gobble it! 🍴";
 }
-$("fCal").addEventListener("input", updateTotal);
+$("fCal").addEventListener("input", () => {
+  const v = $("fCal").value;
+  baseCal = v === "" ? "" : Math.max(0, (+v || 0) - oilCalNow());
+  updateTotal();
+});
+
 document.querySelectorAll("#oilOpts button").forEach((b) => b.addEventListener("click", () => setOil(+b.dataset.tbsp)));
-$("aiBtn").addEventListener("click", estimate);
+// Estimate automatically once you stop typing (about a second), unless you picked from the list.
+let typeTimer;
+$("fName").addEventListener("input", () => {
+  clearTimeout(typeTimer);
+  if (!ai) return;
+  const v = $("fName").value.trim();
+  if (v.length < 3 || v === pickedName) return;
+  typeTimer = setTimeout(estimate, 1100);
+});
 
 (async () => {
   if (!window.claude || !window.claude.use) return;
