@@ -407,8 +407,13 @@ async function estimate() {
     "You estimate nutrition for a calorie tracker used by an adult in Kenya. " +
     (useImage ? "The attached photo shows what they are eating. " : "") +
     `Their description: "${desc || "(none, use the photo)"}". ` +
-    "Assume typical Kenyan home or local restaurant portions unless the description says otherwise. " +
-    "Do NOT include added cooking oil or fat used in cooking; the app asks about oil separately. " +
+    "Give PRUDENT estimates: this person is tracking a calorie deficit, and under-counting hurts them more than over-counting. " +
+    "Assume realistic, generous Kenyan home or local restaurant portions unless the description gives amounts. " +
+    "When unsure about size, cut or ingredients, pick the higher plausible calories; never assume lean, skinless, small or 'light' unless stated. " +
+    "Count fat that is part of the food itself (chicken skin, fatty meat, butter or margarine in chapati, coconut milk, sauces, gravy). " +
+    "For protein, do not round up: give a realistic, not optimistic, number. " +
+    "Calibration: 150 g roasted potatoes plus 1.5 roasted skin-on chicken thighs is about 485 kcal and 40 g protein. " +
+    "Do NOT include separately added cooking oil; the app asks about oil separately. " +
     "Reply with only a JSON object: " +
     '{"name": short food name, max 40 characters, "cal": whole number of kcal, "protein": whole number of grams, ' +
     '"emoji": one food emoji, "note": one short, playful sentence (max 90 characters) naming the portion you assumed}. ' +
