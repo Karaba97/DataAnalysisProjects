@@ -128,6 +128,18 @@
       <label class="field">Protein (g)<input id="fProt" type="number" inputmode="numeric" min="0" required placeholder="25"></label>
       <label class="field">Time<input id="fTime" type="time"></label>
     </div>
+    <div class="oil" id="oilBox">
+      <div class="oil-q">Be honest… how much oil went in? 👀</div>
+      <div class="oil-opts" id="oilOpts">
+        <button type="button" data-tbsp="0" class="on">No oil 😇</button>
+        <button type="button" data-tbsp="0.1">Spray 💨</button>
+        <button type="button" data-tbsp="0.5">½ tbsp</button>
+        <button type="button" data-tbsp="1">1 tbsp</button>
+        <button type="button" data-tbsp="2">2 tbsp</button>
+        <button type="button" data-tbsp="3">Swimming 🏊</button>
+      </div>
+      <div class="oil-add" id="oilAdd"></div>
+    </div>
     <label class="fav-toggle"><input id="fFav" type="checkbox"> <span>⭐ Save to my favourites</span></label>
     <button class="go-btn" type="submit">Gobble it! 🍴</button>
   </form>

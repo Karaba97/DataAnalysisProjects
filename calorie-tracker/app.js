@@ -196,7 +196,7 @@ function render() {
     if (m.photo) li.querySelector(".meal-emoji").style.backgroundImage = `url(${m.photo})`;
     else li.querySelector(".meal-emoji").textContent = m.emoji;
     li.querySelector(".meal-name").textContent = m.name;
-    li.querySelector(".meal-meta").textContent = `${m.time} · ${m.protein}g protein${m.type === "snack" ? " · snack" : ""}`;
+    li.querySelector(".meal-meta").textContent = `${m.time} · ${m.protein}g protein${m.oil ? (m.oil < 0.5 ? " · 💨 oil spray" : ` · 🫗 ${m.oil} tbsp oil`) : ""}${m.type === "snack" ? " · snack" : ""}`;
     li.querySelector(".meal-del").addEventListener("click", () => {
       today.meals.splice(i, 1);
       saveDays(days); render();
@@ -332,7 +332,7 @@ $("photoClear").addEventListener("click", clearPhoto);
 
 $("addBtn").addEventListener("click", () => {
   $("mealForm").reset();
-  clearPhoto(); fillPicker(); pickedName = null; aiEmoji = null; setAiNote("");
+  clearPhoto(); fillPicker(); pickedName = null; aiEmoji = null; setAiNote(""); setOil(0);
   $("fFav").parentElement.hidden = false;
   const n = new Date();
   $("fTime").value = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
@@ -341,16 +341,18 @@ $("addBtn").addEventListener("click", () => {
 $("mealForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const name = $("fName").value.trim();
-  const cal = Math.max(0, +$("fCal").value || 0), protein = Math.max(0, +$("fProt").value || 0);
+  const oilCal = Math.round(oilTbsp * OIL_CAL);
+  const cal = Math.max(0, +$("fCal").value || 0) + oilCal, protein = Math.max(0, +$("fProt").value || 0);
   const pick = CLASSICS.find((c) => c.name === name) || loadFavs().find((f) => f.name === name);
   const emoji = pick ? pick.emoji : aiEmoji || guessEmoji(name);
   const meal = { emoji, name, type: cal < SNACK_UNDER ? "snack" : "meal", time: $("fTime").value || "--:--", cal, protein };
   if (photoData) meal.photo = photoData;
+  if (oilTbsp) meal.oil = oilTbsp;
   today.meals.push(meal);
   today.meals.sort((a, b) => a.time.localeCompare(b.time));
   if ($("fFav").checked) {
     const favs = loadFavs().filter((f) => f.name.toLowerCase() !== name.toLowerCase());
-    favs.unshift({ emoji, name, cal, protein });
+    favs.unshift({ emoji, name, cal: cal - oilCal, protein });
     store.set("fuelup.favs", favs.slice(0, 20));
   }
   saveDays(days); closeSheets(); render();
@@ -384,6 +386,7 @@ async function estimate() {
     (useImage ? "The attached photo shows what they are eating. " : "") +
     `Their description: "${desc || "(none, use the photo)"}". ` +
     "Assume typical Kenyan home or local restaurant portions unless the description says otherwise. " +
+    "Do NOT include added cooking oil or fat used in cooking; the app asks about oil separately. " +
     "Reply with only a JSON object: " +
     '{"name": short food name, max 40 characters, "cal": whole number of kcal, "protein": whole number of grams, ' +
     '"emoji": one food emoji, "note": one short, playful sentence (max 90 characters) naming the portion you assumed}. ' +
@@ -411,6 +414,17 @@ async function estimate() {
   }
 }
 let aiEmoji = null;
+
+// Cooking oil: about 120 cal per tablespoon, added on top of the food.
+const OIL_CAL = 120;
+const OIL_LINES = { 0: "", 0.1: "+12 cal. A little spritz, very fancy 💅", 0.5: "+60 cal. A light drizzle, respect.", 1: "+120 cal. One tablespoon, the honest kind.", 2: "+240 cal. Getting slippery 🫠", 3: "+360 cal. Your chapati went for a swim 🏊" };
+let oilTbsp = 0;
+function setOil(t) {
+  oilTbsp = t;
+  document.querySelectorAll("#oilOpts button").forEach((b) => b.classList.toggle("on", +b.dataset.tbsp === t));
+  $("oilAdd").textContent = OIL_LINES[t] || "";
+}
+document.querySelectorAll("#oilOpts button").forEach((b) => b.addEventListener("click", () => setOil(+b.dataset.tbsp)));
 $("aiBtn").addEventListener("click", estimate);
 
 (async () => {

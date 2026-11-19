@@ -262,3 +262,12 @@ input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 
 .ai-note.ok { background: var(--mint); }
 .ai-note.warn { background: var(--lemon); }
 .form-grid .wide { grid-column: 1 / -1; }
+
+/* Oil check */
+.oil { margin-top: 14px; background: var(--lemon); border: 2.5px solid var(--ink); border-radius: 16px; padding: 10px 12px; }
+.oil-q { font-family: "Fredoka", sans-serif; font-size: 17px; font-weight: 600; }
+.oil-opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.oil-opts button { font: 800 13px "Nunito", sans-serif; color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.oil-opts button.on { background: var(--orange); box-shadow: 2px 2px 0 var(--ink); }
+.oil-add { font-size: 13px; margin-top: 6px; min-height: 1em; }
+.oil-add:empty { display: none; }
