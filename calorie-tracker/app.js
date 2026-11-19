@@ -231,6 +231,7 @@ function openSheet(id) {
   $(id).hidden = false;
 }
 function closeSheets() {
+  if (aiCtl) aiCtl.abort();
   $("scrim").hidden = true;
   $("mealSheet").hidden = true;
   $("stepSheet").hidden = true;
@@ -255,7 +256,7 @@ const CLASSICS = [
 ];
 const SNACK_UNDER = 300; // anything smaller than this counts as a snack
 const loadFavs = () => store.get("fuelup.favs") || [];
-let photoData = null, pickedName = null;
+let photoData = null, photoFile = null, pickedName = null;
 
 function guessEmoji(name) {
   const n = name.toLowerCase();
@@ -304,6 +305,7 @@ $("fName").addEventListener("input", () => {
 $("fPhoto").addEventListener("change", (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
+  photoFile = file;
   const img = new Image();
   img.onload = () => {
     const size = 160, c = document.createElement("canvas");
@@ -313,14 +315,15 @@ $("fPhoto").addEventListener("change", (e) => {
     photoData = c.toDataURL("image/jpeg", 0.7);
     $("photoPreview").innerHTML = "";
     $("photoPreview").style.backgroundImage = `url(${photoData})`;
-    $("photoHint").textContent = "Looking good! Auto-estimates coming soon 🤖";
+    $("photoHint").textContent = ai ? "Looking good! Claude's on it 🔍" : "Looking good!";
     $("photoClear").hidden = false;
     URL.revokeObjectURL(img.src);
+    if (ai && aiImages) estimate();
   };
   img.src = URL.createObjectURL(file);
 });
 function clearPhoto() {
-  photoData = null; $("fPhoto").value = "";
+  photoData = null; photoFile = null; $("fPhoto").value = "";
   $("photoPreview").style.backgroundImage = ""; $("photoPreview").textContent = "📸";
   $("photoHint").textContent = "Add a photo of your plate";
   $("photoClear").hidden = true;
@@ -329,7 +332,7 @@ $("photoClear").addEventListener("click", clearPhoto);
 
 $("addBtn").addEventListener("click", () => {
   $("mealForm").reset();
-  clearPhoto(); fillPicker(); pickedName = null;
+  clearPhoto(); fillPicker(); pickedName = null; aiEmoji = null; setAiNote("");
   $("fFav").parentElement.hidden = false;
   const n = new Date();
   $("fTime").value = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
@@ -340,7 +343,7 @@ $("mealForm").addEventListener("submit", (e) => {
   const name = $("fName").value.trim();
   const cal = Math.max(0, +$("fCal").value || 0), protein = Math.max(0, +$("fProt").value || 0);
   const pick = CLASSICS.find((c) => c.name === name) || loadFavs().find((f) => f.name === name);
-  const emoji = pick ? pick.emoji : guessEmoji(name);
+  const emoji = pick ? pick.emoji : aiEmoji || guessEmoji(name);
   const meal = { emoji, name, type: cal < SNACK_UNDER ? "snack" : "meal", time: $("fTime").value || "--:--", cal, protein };
   if (photoData) meal.photo = photoData;
   today.meals.push(meal);
@@ -354,6 +357,72 @@ $("mealForm").addEventListener("submit", (e) => {
   const left = targetFor(today) - eatenOf(today);
   toast(left < 0 ? `Nom! …uh-oh, ${fmt(-left)} over 🫣` : $("fFav").checked ? "Nom nom! Saved to favourites ⭐" : `Nom nom! +${fmt(meal.cal)} cal 😋`);
 });
+
+
+// ---- Claude estimates (only inside claude.ai, on the viewer's own Claude account) ----
+let ai = null, aiImages = false, aiCtl = null;
+const THINKING = ["Sniffing your plate… 👃", "Counting the ugali… 🤔", "Weighing it with my eyes… 👀", "Consulting the chapati council… 🫓"];
+
+function setAiNote(text, kind) {
+  $("aiNote").hidden = !text;
+  $("aiNote").textContent = text || "";
+  $("aiNote").className = "ai-note" + (kind ? " " + kind : "");
+}
+
+async function estimate() {
+  if (!ai) return;
+  const desc = $("fName").value.trim();
+  const useImage = !!(photoFile && aiImages);
+  if (!desc && !useImage) { setAiNote("Type what you're eating or add a photo first 🍽️", "warn"); return; }
+  if (aiCtl) aiCtl.abort();
+  aiCtl = new AbortController();
+  const btn = $("aiBtn");
+  btn.disabled = true; btn.textContent = "Thinking…";
+  setAiNote(THINKING[Math.floor(Math.random() * THINKING.length)]);
+  const prompt =
+    "You estimate nutrition for a calorie tracker used by an adult in Kenya. " +
+    (useImage ? "The attached photo shows what they are eating. " : "") +
+    `Their description: "${desc || "(none, use the photo)"}". ` +
+    "Assume typical Kenyan home or local restaurant portions unless the description says otherwise. " +
+    "Reply with only a JSON object: " +
+    '{"name": short food name, max 40 characters, "cal": whole number of kcal, "protein": whole number of grams, ' +
+    '"emoji": one food emoji, "note": one short, playful sentence (max 90 characters) naming the portion you assumed}. ' +
+    'If it is not food, reply {"name": "Not food", "cal": 0, "protein": 0, "emoji": "🤨", "note": a playful line saying so}.';
+  try {
+    const r = await ai.json(prompt, { signal: aiCtl.signal, images: useImage ? [photoFile] : undefined });
+    const cal = Math.max(0, Math.round(Number(r && r.cal) || 0));
+    const protein = Math.max(0, Math.round(Number(r && r.protein) || 0));
+    if (r && r.name && !desc) $("fName").value = String(r.name).slice(0, 60);
+    if (r && r.name && desc && /not food/i.test(r.name)) $("fName").value = desc;
+    $("fCal").value = cal; $("fProt").value = protein;
+    aiEmoji = r && typeof r.emoji === "string" ? r.emoji.slice(0, 4) : null;
+    pickedName = null;
+    setAiNote(`🤖 ${fmt(cal)} cal · ${protein}g protein. ${r && r.note ? r.note : ""} Tweak if it's off.`, "ok");
+  } catch (e) {
+    if (e && e.code === "cancelled") setAiNote("");
+    else if (e && (e.code === "not_granted" || e.code === "sampling_disabled" || e.code === "not_declared")) {
+      $("aiBox").hidden = true; ai = null;
+      $("photoHint").textContent = "Looking good!";
+    } else if (e && e.code === "rate_limited") setAiNote("Claude needs a breather. Type the numbers in for now 😮‍💨", "warn");
+    else if (e && e.code === "image_rejected") setAiNote("Couldn't read that photo. Try another one 📸", "warn");
+    else setAiNote("Hmm, that didn't work. Tap Ask Claude to try again.", "warn");
+  } finally {
+    btn.disabled = false; btn.textContent = "✨ Ask Claude to estimate";
+  }
+}
+let aiEmoji = null;
+$("aiBtn").addEventListener("click", estimate);
+
+(async () => {
+  if (!window.claude || !window.claude.use) return;
+  try {
+    ai = await window.claude.use("sample");
+    if (!ai) return;
+    const lim = await ai.limits().catch(() => null);
+    aiImages = !!(lim && lim.images);
+    $("aiBox").hidden = false;
+  } catch (e) { ai = null; }
+})();
 
 // Step sheet
 function openSteps() {

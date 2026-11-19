@@ -252,3 +252,13 @@ input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 
 .fav-toggle input { width: 22px; height: 22px; accent-color: var(--pink); }
 .meal-emoji { background-size: cover; background-position: center; }
 .action[hidden] { display: none; }
+
+/* Claude estimates */
+.ai-box { display: flex; flex-direction: column; gap: 8px; }
+.ai-box[hidden] { display: none; }
+.ai-btn { font: 700 17px "Fredoka", sans-serif; color: var(--ink); background: var(--violet-soft); border: 2.5px dashed var(--violet); border-radius: 14px; padding: 10px; cursor: pointer; }
+.ai-btn:disabled { opacity: .7; cursor: wait; }
+.ai-note { margin: 0; font-size: 14px; line-height: 1.35; background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 8px 10px; }
+.ai-note.ok { background: var(--mint); }
+.ai-note.warn { background: var(--lemon); }
+.form-grid .wide { grid-column: 1 / -1; }

@@ -119,7 +119,11 @@
     </label>
     <div class="or">or type it in</div>
     <div class="form-grid">
-      <label class="field wide">Food<input id="fName" required placeholder="e.g. Ugali, sukuma & beef"></label>
+      <label class="field wide">Food<input id="fName" required placeholder="e.g. 2 chapati, ndengu & avocado"></label>
+      <div class="ai-box wide" id="aiBox" hidden>
+        <button type="button" class="ai-btn" id="aiBtn">✨ Ask Claude to estimate</button>
+        <p class="ai-note" id="aiNote" hidden></p>
+      </div>
       <label class="field">Calories<input id="fCal" type="number" inputmode="numeric" min="0" required placeholder="450"></label>
       <label class="field">Protein (g)<input id="fProt" type="number" inputmode="numeric" min="0" required placeholder="25"></label>
       <label class="field">Time<input id="fTime" type="time"></label>
