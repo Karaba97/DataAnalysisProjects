@@ -34,6 +34,12 @@ function targetFor(day) {
   const earningSteps = day.steps - day.debt; // debt steps are paid back first
   return Math.max(PLAN.minCal, Math.round(PLAN.calTarget + PLAN.calPer1k * (earningSteps - PLAN.stepGoal) / 1000));
 }
+// What the body burns at a given step count: Mifflin-St Jeor x 1.2, plus steps.
+function maintenanceFor(steps) {
+  const w = PLAN.weight || 74, h = PLAN.height || 164, age = PLAN.age || 29, sex = PLAN.sex || "m";
+  const bmr = 10 * w + 6.25 * h - 5 * age + (sex === "m" ? 5 : -161);
+  return bmr * 1.2 + (PLAN.calPer1k * steps) / 1000;
+}
 const eatenOf = (day) => day.meals.reduce((s, m) => s + m.cal, 0);
 const proteinOf = (day) => day.meals.reduce((s, m) => s + m.protein, 0);
 
@@ -106,7 +112,7 @@ function render() {
   const nextMealBudget = over ? 0 : mealsLeft ? Math.min(MEAL_CAP, Math.floor(remaining / mealsLeft)) : remaining;
   const feastSteps = !over && remaining < MEAL_CAP ? stepsFor(MEAL_CAP - remaining) : 0;
   const proteinLeft = Math.max(0, PLAN.proteinTarget - protein);
-  const stepGoal = PLAN.stepGoal + today.debt + burnSteps;
+  const stepGoal = PLAN.stepGoal + today.debt; // never ask for more than the goal (+ any debt)
 
   // Hero
   const hero = $("hero");
@@ -153,9 +159,33 @@ function render() {
   const action = $("actionCard");
   action.classList.toggle("over", over);
   if (over) {
-    $("actionEmoji").textContent = "🏃‍♂️";
-    $("actionTitle").textContent = `Walk it off: +${fmt(burnSteps)} steps`;
-    $("actionText").textContent = "Not done by midnight? It's tomorrow's step debt 🐌";
+    // Where are we vs maintenance (what the body actually burns today)?
+    const maint = maintenanceFor(today.steps);
+    const gap = Math.round(maint - eaten); // + = still in a deficit, − = surplus
+    const kgWeek = (cal) => Math.max(0, (cal * 7) / 7700).toFixed(2).replace(/0$/, "");
+    const plannedDef = maintenanceFor(PLAN.stepGoal) - PLAN.calTarget;
+    const toGoal = Math.max(0, stepGoal - today.steps);
+    const earn = Math.round((toGoal / 1000) * PLAN.calPer1k);
+    const afterGap = gap + earn;
+    const vsMaint = (g) => g > 25 ? `puts you ${fmt(g)} cal below maintenance 🙌` : g < -25 ? `still leaves you ${fmt(-g)} cal above maintenance 😬` : "puts you right at maintenance 😐";
+    const walk = toGoal
+      ? ` Walk your last ${fmt(toGoal)} steps to earn back ${fmt(earn)} cal, which ${vsMaint(afterGap)}.`
+      : "";
+    action.classList.remove("mild", "maint", "surplus");
+    action.classList.add(gap > 25 ? "mild" : gap >= -25 ? "maint" : "surplus");
+    if (gap > 25) {
+      $("actionEmoji").textContent = "😅";
+      $("actionTitle").textContent = `Not too bad. Still a deficit!`;
+      $("actionText").textContent = `Missed target by ${fmt(-remaining)} cal, so today's pace is ${kgWeek(gap)} kg/week instead of ${kgWeek(plannedDef)}.${walk || " Do better tomorrow 💪"}`;
+    } else if (gap >= -25) {
+      $("actionEmoji").textContent = "😐";
+      $("actionTitle").textContent = "Maintenance mode: no loss today";
+      $("actionText").textContent = `You ate what you burn.${walk || " Tomorrow we cut, deal? 🤝"}`;
+    } else {
+      $("actionEmoji").textContent = "🚨";
+      $("actionTitle").textContent = `Surplus alert: ${fmt(-gap)} cal over maintenance`;
+      $("actionText").textContent = `${walk ? walk.trim() : "Step goal done ✅"} Whatever's still over target at midnight becomes tomorrow's step debt 🐌`;
+    }
   }
   // Only show the action card when there's something to fix (going over).
   action.hidden = !over;

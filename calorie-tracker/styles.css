@@ -331,3 +331,6 @@ a.tab { text-decoration: none; }
 .b-bar i { display: block; height: 100%; background: var(--violet); }
 .b-prog { font-size: 10px; }
 html, body { overflow-x: hidden; }
+.action.over.mild { background: #FFF1C2; }
+.action.over.maint { background: #FFE0C2; }
+.action.over.surplus { background: var(--red-soft); }
