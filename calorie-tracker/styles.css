@@ -284,3 +284,50 @@ input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 
 .zone-tag.low { background: var(--red-soft); }
 .zone-tag.good { background: #FFF1C2; }
 .zone-tag.perfect { background: #D6F8E8; }
+
+/* Trophy cabinet */
+a.tab { text-decoration: none; }
+.trophy-hero h1 { font-size: 34px; }
+.sample-note { display: flex; flex-direction: column; gap: 2px; background: var(--lemon); border: var(--border); border-radius: 18px; padding: 10px 14px; margin-bottom: 16px; box-shadow: var(--pop); font-size: 14px; }
+.sample-note[hidden] { display: none; }
+.sample-note b { font-family: "Fredoka", sans-serif; font-size: 17px; }
+.streaks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.streak { display: flex; flex-direction: column; align-items: center; padding: 12px 6px; text-align: center; }
+.streak.hot { background: var(--lemon); }
+.st-icon { font-size: 26px; }
+.streak.hot .st-icon { animation: wiggle 1.6s ease-in-out infinite; }
+.st-num { font-family: "Fredoka", sans-serif; font-size: 36px; font-weight: 700; line-height: 1; margin-top: 2px; }
+.st-lbl { font-size: 13px; }
+.st-best { font-size: 11px; color: var(--muted); }
+.cal-nav { font: 800 16px "Nunito", sans-serif; width: 36px; height: 36px; border-radius: 12px; border: 2.5px solid var(--ink); background: #fff; color: var(--ink); cursor: pointer; }
+.cal-nav:disabled { opacity: .3; cursor: default; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 8px; }
+.cal-dow span { text-align: center; font-size: 12px; color: var(--muted); }
+.cal-day { aspect-ratio: 1; max-width: 100%; border-radius: 12px; border: 2px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 13px; background: #fff; }
+.cal-day.today { border-color: var(--ink); border-width: 2.5px; }
+.cal-day.future { opacity: .4; }
+.cal-day.crown { background: var(--lemon); border-color: var(--ink); }
+.cal-day.crown .cal-num { font-size: 16px; }
+.dots { display: flex; gap: 2px; min-height: 7px; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.dot.cal { background: var(--red); }
+.dot.prot { background: var(--mint); }
+.dot.step { background: var(--violet); }
+.dot.miss { background: #fff; opacity: .5; }
+.dot.pending { background: var(--line); opacity: .8; }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+.cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.rates { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.rate-top { display: flex; justify-content: space-between; font-size: 14px; }
+.rate .bar { margin: 4px 0 0; }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-top: 12px; }
+.badge { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 10px 6px; border-radius: 16px; border: 2.5px dashed var(--muted); background: var(--bg); min-width: 0; }
+.badge.got { border: 2.5px solid var(--ink); background: #fff; box-shadow: 3px 3px 0 var(--ink); }
+.b-icon { font-size: 30px; }
+.badge:not(.got) .b-icon { filter: grayscale(1); opacity: .6; }
+.badge b { font-family: "Fredoka", sans-serif; font-size: 14px; line-height: 1.1; }
+.badge small { font-size: 11px; color: var(--muted); line-height: 1.2; }
+.b-bar { width: 80%; height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: 4px; }
+.b-bar i { display: block; height: 100%; background: var(--violet); }
+.b-prog { font-size: 10px; }
+html, body { overflow-x: hidden; }

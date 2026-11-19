@@ -512,11 +512,13 @@ $("stepForm").addEventListener("submit", (e) => {
   toast(earned > 0 ? `Stompin'! +${fmt(earned)} cal earned 🦶` : "Steps saved 👟");
 });
 
-$("winsBtn").addEventListener("click", () => toast("Trophy room is under construction 🏗️🏆"));
+$("winsBtn").addEventListener("click", () => { location.href = "wins.html"; });
 
 // ---- Go ----
 load();
 render();
+// Coming from the trophy cabinet's + button: open the meal sheet straight away.
+if (location.hash === "#log") { history.replaceState(null, "", location.pathname + location.search); $("addBtn").click(); }
 
 // Midnight rollover: if the date changes while the app is open, start a fresh day.
 setInterval(() => {

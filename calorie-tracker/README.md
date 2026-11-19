@@ -5,8 +5,8 @@ A playful, mobile-first calorie, protein and step tracker. Built as a PWA first,
 ## Status
 - [x] Step 1: look and feel (time-aware greeting, calorie fuel gauge, protein and steps, coach, next-meal plan) with sample data
 - [x] Step 2: manual meal and step logging, saved per day on the phone, midnight reset with carry-over
-- [ ] Step 3: meal estimates from a photo or text via Claude (key kept on a small backend)
-- [ ] Step 4: metrics: goal calendar, streaks, badges
+- [x] Step 3: meal estimates from a photo or text via Claude (inside claude.ai, on the viewer's own account)
+- [x] Step 4: trophy cabinet (`wins.html`): streaks, goals calendar, hit rates and badges
 - [ ] Step 5: installable PWA, then Capacitor for mobile
 
 ## Sign-up

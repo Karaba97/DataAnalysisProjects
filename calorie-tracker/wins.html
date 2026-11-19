@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8B6CFF">
+<title>Fuel Up · Trophy Cabinet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=10">
+</head>
+<body>
+<main class="app wins">
+
+  <header class="hero night trophy-hero">
+    <div class="hero-row">
+      <div class="sky" aria-hidden="true">🏆</div>
+      <div>
+        <h1>Trophy cabinet</h1>
+        <p class="sub" id="winsSub"></p>
+      </div>
+    </div>
+  </header>
+
+  <section class="sample-note sticker" id="sampleNote" hidden>
+    <b>👀 Sample trophies</b>
+    <span>Log a few days and your own wins move in here.</span>
+  </section>
+
+  <section class="streaks" aria-label="Streaks">
+    <div class="card streak" id="stCal"><span class="st-icon">🔥</span><span class="st-num"></span><span class="st-lbl">Calories</span><span class="st-best"></span></div>
+    <div class="card streak" id="stProt"><span class="st-icon">💪</span><span class="st-num"></span><span class="st-lbl">Protein</span><span class="st-best"></span></div>
+    <div class="card streak" id="stStep"><span class="st-icon">👟</span><span class="st-num"></span><span class="st-lbl">Steps</span><span class="st-best"></span></div>
+  </section>
+
+  <section class="card tilt-l">
+    <div class="card-head">
+      <button class="cal-nav" id="prevMonth" type="button" aria-label="Previous month">◀</button>
+      <h2 id="monthName"></h2>
+      <button class="cal-nav" id="nextMonth" type="button" aria-label="Next month">▶</button>
+    </div>
+    <div class="cal-grid cal-dow"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span><i class="dot cal"></i>Calories</span><span><i class="dot prot"></i>Protein</span><span><i class="dot step"></i>Steps</span><span>👑 All three</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Hit rate 🎯</h2>
+    <div class="rates" id="rates"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Badges 🏅</h2><span class="pill soft" id="badgeCount"></span></div>
+    <div class="badges" id="badges"></div>
+  </section>
+
+  <section class="coach">
+    <div class="coach-face" aria-hidden="true">🦒</div>
+    <div class="bubble"><p id="coach"></p></div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Main">
+  <a class="tab" href="index.html"><span>🏠</span>Today</a>
+  <a class="tab add" href="index.html#log" aria-label="Log a meal"><span>＋</span></a>
+  <a class="tab active" href="wins.html"><span>🏆</span>Wins</a>
+</nav>
+
+<script src="wins.js?v=10"></script>
+</body>
+</html>
