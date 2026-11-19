@@ -272,3 +272,15 @@ input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 
 .oil-add { font-size: 13px; margin-top: 6px; min-height: 1em; }
 .oil-add:empty { display: none; }
 .oil-total { font-family: "Fredoka", sans-serif; font-size: 18px; font-weight: 700; margin-top: 6px; } .oil-total:empty { display: none; }
+
+/* Protein zones inside the bar */
+.bar.zoned { position: relative; background: linear-gradient(90deg, var(--red-soft) 0 var(--low, 64%), #FFF1C2 var(--low, 64%) var(--good, 85%), #D6F8E8 var(--good, 85%) 100%); }
+.bar.zoned .bar-fill { position: relative; z-index: 1; }
+.bar-fill.zone-low { background: var(--red); }
+.bar-fill.zone-good { background: var(--orange); }
+.bar-fill.zone-perfect { background: var(--mint); }
+.bar .tick { position: absolute; top: -1px; bottom: -1px; width: 2px; margin-left: -1px; background: var(--ink); opacity: .35; z-index: 2; }
+.zone-tag { font-size: 12px; line-height: 1.3; padding: 4px 8px; border-radius: 10px; border: 2px solid var(--ink); margin-bottom: 6px; }
+.zone-tag.low { background: var(--red-soft); }
+.zone-tag.good { background: #FFF1C2; }
+.zone-tag.perfect { background: #D6F8E8; }

@@ -161,11 +161,29 @@ function render() {
   action.hidden = !over;
 
   // Protein & steps
+  // Protein zones, by grams per kg of body weight:
+  // under 1.2 g/kg too low, 1.2 to 1.6 good enough, 1.6+ perfect (benefits level off there).
+  const kg = PLAN.weight || PLAN.proteinTarget / 1.9;
+  const lowLine = Math.min(PLAN.proteinTarget, Math.round(kg * 1.2));
+  const goodLine = Math.min(PLAN.proteinTarget, Math.round(kg * 1.6));
+  const zone = protein >= goodLine ? "perfect" : protein >= lowLine ? "good" : "low";
+  const ZONES = {
+    low: protein === 0 ? "🫥 Running on vibes. Feed the muscles!" : "😱 Too low. Your muscles are packing their bags 🧳",
+    good: "👍 Good enough. Muscles staying, not flexing",
+    perfect: protein >= PLAN.proteinTarget ? "💪 Perfect! Gains locked in 🔒" : "💪 Perfect zone! Muscles are safe",
+  };
+  const pct = (g) => Math.min(100, (g / PLAN.proteinTarget) * 100);
+  $("protTrack").style.setProperty("--low", pct(lowLine) + "%");
+  $("protTrack").style.setProperty("--good", pct(goodLine) + "%");
+  $("tickLow").style.left = pct(lowLine) + "%";
+  $("tickGood").style.left = pct(goodLine) + "%";
+  $("protZone").textContent = ZONES[zone];
+  $("protZone").className = "zone-tag " + zone;
+  $("protBar").className = "bar-fill zone-" + zone;
   const protMet = protein >= PLAN.proteinTarget;
   $("protEaten").textContent = protein;
   $("protTarget").textContent = PLAN.proteinTarget;
-  $("protBar").classList.toggle("met", protMet);
-  $("protFoot").textContent = protMet ? "Beast mode 💪" : `${proteinLeft}g to go · resets at midnight`;
+  $("protFoot").textContent = protMet ? "Beast mode 💪" : `${proteinLeft}g to ${PLAN.proteinTarget} · resets at midnight`;
   $("steps").textContent = fmt(today.steps);
   $("stepFoot").textContent = today.steps >= stepGoal ? "Goal smashed 🎉" : `Goal ${fmt(stepGoal)}`;
 
@@ -175,6 +193,7 @@ function render() {
   else if (today.debt - today.steps > 10000) coach = "That debt's a mountain 🏔️ Chip away with walks and keep plates light today.";
   else if (today.debt > today.steps) coach = "Slow and steady pays the debt. Lace up! 🐌";
   else if (!today.meals.length) coach = p === "morning" ? "Eggs, beans or omena. Start strong!" : "Don't skip! Log your first bite with the pink button.";
+  else if (zone === "low" && today.meals.length) coach = "Protein alert! 🚨 Your biceps are filing a missing person report. Eggs, kuku or omena, stat.";
   else if (proteinLeft > 40) coach = "Protein's lagging. Kuku or samaki next? 🐔🐟";
   else if (!today.steps) coach = "Food's logged. Now tell me your steps, tap the shoe 👟";
   else coach = "You're crushing it. Keep munching smart!";
