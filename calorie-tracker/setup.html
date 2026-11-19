@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFE45C">
+<title>Fuel Up · Your Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="app setup">
+
+  <header class="hero morning">
+    <div class="hero-row">
+      <div class="sky" aria-hidden="true">🛠️</div>
+      <div>
+        <h1>Let's build your plan!</h1>
+        <p class="sub">30 seconds. No judgement. Okay, a little judgement.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="card tilt-l">
+    <h2>About you 🪞</h2>
+    <div class="form-grid">
+      <label class="field wide">Name<input id="name" value="Trevor" autocomplete="given-name"></label>
+      <div class="field wide">Body
+        <div class="toggle" id="sex">
+          <button type="button" data-v="m" class="on">👨 Male</button>
+          <button type="button" data-v="f">👩 Female</button>
+        </div>
+      </div>
+      <label class="field">Age<input id="age" type="number" inputmode="numeric" value="29"></label>
+      <label class="field">Height (cm)<input id="height" type="number" inputmode="numeric" value="164"></label>
+      <label class="field">Weight (kg)<input id="weight" type="number" inputmode="decimal" value="74"></label>
+    </div>
+  </section>
+
+  <section class="card goal tilt-r">
+    <div class="card-head"><h2>Daily steps 👟</h2><span class="goal-num" id="stepsOut"></span></div>
+    <input type="range" id="steps" min="2000" max="20000" step="500" value="7000" aria-label="Daily step goal">
+    <div class="verdict" id="stepsVerdict"></div>
+  </section>
+
+  <section class="card goal tilt-l">
+    <div class="card-head"><h2>Weekly loss ⚖️</h2><span class="goal-num" id="lossOut"></span></div>
+    <input type="range" id="loss" min="0" max="1.25" step="0.05" value="0.5" aria-label="Weekly weight loss goal in kg">
+    <div class="verdict" id="lossVerdict"></div>
+  </section>
+
+  <section class="card result">
+    <h2>Your daily fuel ⛽</h2>
+    <div class="result-grid">
+      <div class="result-tile"><span class="lbl">Calories</span><span class="val" id="calOut"></span><span class="unit">a day</span></div>
+      <div class="result-tile"><span class="lbl">Protein</span><span class="val" id="protOut"></span><span class="unit">grams a day</span></div>
+      <div class="result-tile"><span class="lbl">Deficit</span><span class="val" id="defOut"></span><span class="unit">cal a day</span></div>
+      <div class="result-tile"><span class="lbl">In 12 weeks</span><span class="val" id="weeksOut"></span><span class="unit">kg lighter</span></div>
+    </div>
+    <p class="fine" id="mathOut"></p>
+  </section>
+
+  <section class="coach">
+    <div class="coach-face" aria-hidden="true">🦒</div>
+    <div class="bubble"><p id="coach"></p></div>
+  </section>
+
+  <button class="go-btn" id="go" type="button">Let's gooo! 🚀</button>
+</main>
+
+<script src="setup.js"></script>
+</body>
+</html>

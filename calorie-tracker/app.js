@@ -5,8 +5,13 @@
 // how many steps burn it off. Steps you don't walk by midnight roll into
 // tomorrow as a step debt: those steps don't earn any calories until repaid.
 
-const PROFILE = { name: "Trevor", nick: "Trev", proteinTarget: 140, mealsPerDay: 3, mealCap: 800 };
-const BASE_CAL = 1935, BASE_STEPS = 4000, CAL_PER_1K = 40, MIN_CAL = 1500;
+// Goals come from the sign-up screen (setup.html). Until then, Trevor's current plan.
+const DEFAULT_PLAN = { name: "Trevor", calTarget: 1935, stepGoal: 4000, proteinTarget: 140, calPer1k: 40, minCal: 1500 };
+let saved = null;
+try { saved = JSON.parse(localStorage.getItem("fuelup.plan")); } catch (e) { /* storage blocked */ }
+const PLAN = { ...DEFAULT_PLAN, ...(saved || {}) };
+const PROFILE = { name: PLAN.name, nick: PLAN.name.length > 5 ? PLAN.name.slice(0, 4) : PLAN.name, proteinTarget: PLAN.proteinTarget, mealsPerDay: 3, mealCap: 800 };
+const BASE_CAL = PLAN.calTarget, BASE_STEPS = PLAN.stepGoal, CAL_PER_1K = PLAN.calPer1k, MIN_CAL = PLAN.minCal;
 
 // ---- Sample days (real logging arrives in step 2) ----
 const DEMOS = {
@@ -69,10 +74,10 @@ const p = hour < 5 ? "night" : hour < 12 ? "morning" : hour < 17 ? "afternoon" :
 const $ = (id) => document.getElementById(id);
 
 const GREET = {
-  morning: ["Rise & dine, Trevor!", "🌞"],
-  afternoon: ["Yo Trev!", "😎"],
-  evening: ["Evening, Trev!", "🌛"],
-  night: ["Night owl Trev!", "🦉"],
+  morning: [`Rise & dine, ${PROFILE.name}!`, "🌞"],
+  afternoon: [`Yo ${PROFILE.nick}!`, "😎"],
+  evening: [`Evening, ${PROFILE.nick}!`, "🌛"],
+  night: [`Night owl ${PROFILE.nick}!`, "🦉"],
 };
 $("hero").classList.add(p);
 $("greeting").textContent = GREET[p][0];
@@ -89,10 +94,11 @@ $("subGreeting").textContent = !today.meals.length
 if (today.debt) {
   const left = Math.max(0, today.debt - today.steps);
   $("debt").hidden = false;
+  const debtCal = Math.round(today.debt / 1000 * CAL_PER_1K);
   $("debtTitle").textContent = left ? `Step debt: ${fmt(left)} to go` : "Debt paid off! 🎉";
   $("debtText").textContent = left
-    ? `You owe ${fmt(today.debt)} from yesterday. They don't earn snacks.`
-    : `You cleared yesterday's ${fmt(today.debt)}. Steps earn cal again.`;
+    ? `Yesterday ran ${fmt(debtCal)} cal over, so today starts at −${fmt(debtCal)} cal and +${fmt(today.debt)} steps.`
+    : `You walked off yesterday's ${fmt(debtCal)} cal. Steps earn cal again.`;
 }
 
 // ---- Gauge ----
@@ -135,7 +141,7 @@ const protMet = protein >= PROFILE.proteinTarget;
 $("protEaten").textContent = protein;
 $("protTarget").textContent = PROFILE.proteinTarget;
 $("protBar").classList.toggle("met", protMet);
-$("protFoot").textContent = protMet ? "Beast mode 💪" : `${proteinLeft}g to go 🐢`;
+$("protFoot").textContent = protMet ? "Beast mode 💪" : `${proteinLeft}g to go · resets at midnight`;
 
 $("steps").textContent = fmt(today.steps);
 $("stepFoot").textContent = today.steps >= stepGoal ? "Goal smashed 🎉" : `Goal ${fmt(stepGoal)}`;
