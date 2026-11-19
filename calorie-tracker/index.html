@@ -67,7 +67,8 @@
       <div class="bar"><div class="bar-fill" id="protBar"></div></div>
       <div class="mini-foot" id="protFoot"></div>
     </div>
-    <div class="card mini">
+    <div class="card mini tappable" id="stepsCard" role="button" tabindex="0" aria-label="Update steps">
+      <span class="edit-dot">✏️</span>
       <div class="mini-top"><span class="mini-icon">👟</span><h2>Steps</h2></div>
       <div class="mini-num"><span id="steps">0</span></div>
       <div class="bar"><div class="bar-fill steps-fill" id="stepBar"></div></div>
@@ -88,14 +89,56 @@
     <ul class="meals" id="meals"></ul>
   </section>
 
-  <p class="footer-note">Sneak peek · sample data</p>
+  <p class="footer-note" id="footNote">Saved on this phone · resets at midnight</p>
 </main>
 
 <nav class="tabbar" aria-label="Main">
-  <button class="tab active"><span>🏠</span>Today</button>
-  <button class="tab add" aria-label="Log a meal"><span>＋</span></button>
-  <button class="tab"><span>🏆</span>Wins</button>
+  <button class="tab active" type="button"><span>🏠</span>Today</button>
+  <button class="tab add" id="addBtn" type="button" aria-label="Log a meal"><span>＋</span></button>
+  <button class="tab" id="winsBtn" type="button"><span>🏆</span>Wins</button>
 </nav>
+
+<div class="scrim" id="scrim" hidden></div>
+
+<section class="sheet" id="mealSheet" hidden aria-label="Log a meal">
+  <div class="sheet-grab"></div>
+  <h2>What did you munch? 😋</h2>
+  <p class="sheet-sub">Tap a quick-pick or type it in.</p>
+  <div class="picks" id="picks"></div>
+  <form id="mealForm" autocomplete="off">
+    <div class="form-grid">
+      <label class="field wide">Food<input id="fName" required placeholder="e.g. Ugali, sukuma & beef"></label>
+      <div class="field wide">Type
+        <div class="toggle" id="fType">
+          <button type="button" data-v="meal" class="on">🍽️ Meal</button>
+          <button type="button" data-v="snack">🍪 Snack</button>
+        </div>
+      </div>
+      <label class="field">Calories<input id="fCal" type="number" inputmode="numeric" min="0" required placeholder="450"></label>
+      <label class="field">Protein (g)<input id="fProt" type="number" inputmode="numeric" min="0" required placeholder="25"></label>
+      <label class="field">Time<input id="fTime" type="time"></label>
+    </div>
+    <div class="emoji-row" id="emojiRow"></div>
+    <button class="go-btn" type="submit">Gobble it! 🍴</button>
+  </form>
+</section>
+
+<section class="sheet" id="stepSheet" hidden aria-label="Update steps">
+  <div class="sheet-grab"></div>
+  <h2>How many steps so far? 👟</h2>
+  <p class="sheet-sub">Check your phone or watch and pop in today's total.</p>
+  <form id="stepForm">
+    <input class="big-input" id="sTotal" type="number" inputmode="numeric" min="0" step="1" required>
+    <div class="picks">
+      <button type="button" class="pick" data-add="500">+500</button>
+      <button type="button" class="pick" data-add="1000">+1,000</button>
+      <button type="button" class="pick" data-add="2500">+2,500</button>
+    </div>
+    <button class="go-btn" type="submit">Save my steps 🦶</button>
+  </form>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="app.js"></script>
 </body>

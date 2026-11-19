@@ -4,7 +4,7 @@ A playful, mobile-first calorie, protein and step tracker. Built as a PWA first,
 
 ## Status
 - [x] Step 1: look and feel (time-aware greeting, calorie fuel gauge, protein and steps, coach, next-meal plan) with sample data
-- [ ] Step 2: manual meal and step logging, saved per day, midnight reset
+- [x] Step 2: manual meal and step logging, saved per day on the phone, midnight reset with carry-over
 - [ ] Step 3: meal estimates from a photo or text via Claude (key kept on a small backend)
 - [ ] Step 4: metrics: goal calendar, streaks, badges
 - [ ] Step 5: installable PWA, then Capacitor for mobile
@@ -13,7 +13,7 @@ A playful, mobile-first calorie, protein and step tracker. Built as a PWA first,
 `setup.html` turns age, height, weight and sex plus a daily step goal and a weekly loss goal into a calorie and protein target (Mifflin-St Jeor × 1.2, plus ~0.55 cal per kg per 1,000 steps, minus loss × 7,700 / 7). Protein is 1.9 g/kg, or 2.1 g/kg above 0.75 kg a week. Calories never go below 1,500 (men) or 1,200 (women). Each slider gives playful feedback: too easy, sweet spot or too hard.
 
 ## Run it
-Open `index.html` in a browser. Add `?hour=9`, `?hour=14` or `?hour=20` to preview morning, afternoon or evening, and `?demo=debt` or `?demo=over` to preview a step-debt day or an over-budget day.
+Open `index.html` in a browser (first visit goes to sign-up). Data is saved in the browser's local storage. Add `?hour=9`, `?hour=14` or `?hour=20` to preview morning, afternoon or evening, and `?demo=debt` or `?demo=over` to preview a step-debt day or an over-budget day.
 
 ## Rules
 - Daily target = 1,935 + 40 × (steps − 4,000) / 1,000, never below 1,500
