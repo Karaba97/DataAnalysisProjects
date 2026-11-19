@@ -289,6 +289,7 @@ $("fPick").addEventListener("change", (e) => {
   const item = kind === "fav" ? loadFavs()[i] : kind === "kc" ? CLASSICS[i] : null;
   if (!item) return;
   $("fName").value = item.name; $("fCal").value = item.cal; $("fProt").value = item.protein;
+  updateTotal();
   pickedName = item.name;
   $("fFav").checked = false;
   $("fFav").parentElement.hidden = kind === "fav";
@@ -297,6 +298,7 @@ $("fPick").addEventListener("change", (e) => {
 $("fName").addEventListener("input", () => {
   if (pickedName && $("fName").value.trim() !== pickedName) {
     $("fCal").value = ""; $("fProt").value = ""; $("fPick").value = "";
+    updateTotal();
     pickedName = null; $("fFav").parentElement.hidden = false;
   }
 });
@@ -398,6 +400,7 @@ async function estimate() {
     if (r && r.name && !desc) $("fName").value = String(r.name).slice(0, 60);
     if (r && r.name && desc && /not food/i.test(r.name)) $("fName").value = desc;
     $("fCal").value = cal; $("fProt").value = protein;
+    updateTotal();
     aiEmoji = r && typeof r.emoji === "string" ? r.emoji.slice(0, 4) : null;
     pickedName = null;
     setAiNote(`🤖 ${fmt(cal)} cal · ${protein}g protein. ${r && r.note ? r.note : ""} Tweak if it's off.`, "ok");
@@ -423,7 +426,17 @@ function setOil(t) {
   oilTbsp = t;
   document.querySelectorAll("#oilOpts button").forEach((b) => b.classList.toggle("on", +b.dataset.tbsp === t));
   $("oilAdd").textContent = OIL_LINES[t] || "";
+  updateTotal();
 }
+// Live total: food calories + oil, shown on the oil card and the save button.
+function updateTotal() {
+  const food = Math.max(0, +$("fCal").value || 0);
+  const oil = Math.round(oilTbsp * OIL_CAL);
+  const total = food + oil;
+  $("oilTotal").textContent = oil ? `Total: ${fmt(total)} cal (${fmt(food)} food + ${fmt(oil)} oil)` : food ? `Total: ${fmt(total)} cal` : "";
+  $("gobbleBtn").textContent = total ? `Gobble it! ${fmt(total)} cal 🍴` : "Gobble it! 🍴";
+}
+$("fCal").addEventListener("input", updateTotal);
 document.querySelectorAll("#oilOpts button").forEach((b) => b.addEventListener("click", () => setOil(+b.dataset.tbsp)));
 $("aiBtn").addEventListener("click", estimate);
 

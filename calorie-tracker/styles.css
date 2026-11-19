@@ -271,3 +271,4 @@ input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 
 .oil-opts button.on { background: var(--orange); box-shadow: 2px 2px 0 var(--ink); }
 .oil-add { font-size: 13px; margin-top: 6px; min-height: 1em; }
 .oil-add:empty { display: none; }
+.oil-total { font-family: "Fredoka", sans-serif; font-size: 18px; font-weight: 700; margin-top: 6px; } .oil-total:empty { display: none; }
