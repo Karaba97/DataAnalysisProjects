@@ -156,17 +156,9 @@ function render() {
     $("actionEmoji").textContent = "🏃‍♂️";
     $("actionTitle").textContent = `Walk it off: +${fmt(burnSteps)} steps`;
     $("actionText").textContent = "Not done by midnight? It's tomorrow's step debt 🐌";
-  } else if (mealsLeft) {
-    $("actionEmoji").textContent = "🍗";
-    $("actionTitle").textContent = `Next up: ${fmt(nextMealBudget)} cal meal`;
-    $("actionText").textContent = feastSteps
-      ? `Walk +${fmt(feastSteps)} steps to make it an 800-cal feast.`
-      : "Room for a full 800-cal feast. Dig in!";
-  } else {
-    $("actionEmoji").textContent = "🛑";
-    $("actionTitle").textContent = "Kitchen's closed!";
-    $("actionText").textContent = `${fmt(remaining)} cal spare. Nice work.`;
   }
+  // Only show the action card when there's something to fix (going over).
+  action.hidden = !over;
 
   // Protein & steps
   const protMet = protein >= PLAN.proteinTarget;
@@ -201,7 +193,8 @@ function render() {
       <div class="meal-info"><div class="meal-name"></div><div class="meal-meta"></div></div>
       <div class="meal-cal">${fmt(m.cal)}</div>
       <button class="meal-del" type="button" aria-label="Delete">🗑️</button>`;
-    li.querySelector(".meal-emoji").textContent = m.emoji;
+    if (m.photo) li.querySelector(".meal-emoji").style.backgroundImage = `url(${m.photo})`;
+    else li.querySelector(".meal-emoji").textContent = m.emoji;
     li.querySelector(".meal-name").textContent = m.name;
     li.querySelector(".meal-meta").textContent = `${m.time} · ${m.protein}g protein${m.type === "snack" ? " · snack" : ""}`;
     li.querySelector(".meal-del").addEventListener("click", () => {
@@ -245,8 +238,8 @@ function closeSheets() {
 $("scrim").addEventListener("click", closeSheets);
 document.addEventListener("keydown", (e) => e.key === "Escape" && closeSheets());
 
-// Meal sheet. Quick-pick numbers are rough estimates for a typical home portion.
-const PICKS = [
+// Meal sheet. Kenyan classics are rough estimates for a typical home portion.
+const CLASSICS = [
   { emoji: "🍲", name: "Ugali & sukuma", cal: 450, protein: 12 },
   { emoji: "🍖", name: "Ugali & beef stew", cal: 700, protein: 38 },
   { emoji: "🐟", name: "Ugali & fried tilapia", cal: 750, protein: 50 },
@@ -260,54 +253,106 @@ const PICKS = [
   { emoji: "☕", name: "Chai with milk", cal: 120, protein: 4 },
   { emoji: "🍌", name: "Banana", cal: 105, protein: 1 },
 ];
-const EMOJIS = [...new Set(["🍽️", ...PICKS.map((p) => p.emoji), "🥗", "🥜", "🍪"])];
-let mealType = "meal", mealEmoji = "🍽️";
+const SNACK_UNDER = 300; // anything smaller than this counts as a snack
+const loadFavs = () => store.get("fuelup.favs") || [];
+let photoData = null, pickedName = null;
 
-function setType(v) {
-  mealType = v;
-  document.querySelectorAll("#fType button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
+function guessEmoji(name) {
+  const n = name.toLowerCase();
+  const hit = CLASSICS.find((c) => n.includes(c.name.toLowerCase().split(/[ (&]/)[0]));
+  return hit ? hit.emoji : "🍽️";
 }
-function setEmoji(e) {
-  mealEmoji = e;
-  document.querySelectorAll("#emojiRow button").forEach((b) => b.classList.toggle("on", b.textContent === e));
+
+function fillPicker() {
+  const sel = $("fPick");
+  sel.innerHTML = '<option value="">Choose from the list…</option>';
+  const favs = loadFavs();
+  const group = (label, items, prefix) => {
+    if (!items.length) return;
+    const g = document.createElement("optgroup");
+    g.label = label;
+    items.forEach((it, i) => {
+      const o = document.createElement("option");
+      o.value = `${prefix}:${i}`;
+      o.textContent = `${it.emoji} ${it.name} · ${fmt(it.cal)} cal`;
+      g.appendChild(o);
+    });
+    sel.appendChild(g);
+  };
+  group("⭐ My favourites", favs, "fav");
+  group("🇰🇪 Kenyan classics", CLASSICS, "kc");
 }
-PICKS.forEach((pk) => {
-  const b = document.createElement("button");
-  b.type = "button"; b.className = "pick";
-  b.textContent = `${pk.emoji} ${pk.name}`;
-  b.addEventListener("click", () => {
-    $("fName").value = pk.name; $("fCal").value = pk.cal; $("fProt").value = pk.protein;
-    setEmoji(EMOJIS.includes(pk.emoji) ? pk.emoji : "🍽️");
-    setType(pk.cal < 250 ? "snack" : "meal");
-  });
-  $("picks").appendChild(b);
+
+$("fPick").addEventListener("change", (e) => {
+  const [kind, i] = e.target.value.split(":");
+  const item = kind === "fav" ? loadFavs()[i] : kind === "kc" ? CLASSICS[i] : null;
+  if (!item) return;
+  $("fName").value = item.name; $("fCal").value = item.cal; $("fProt").value = item.protein;
+  pickedName = item.name;
+  $("fFav").checked = false;
+  $("fFav").parentElement.hidden = kind === "fav";
 });
-EMOJIS.forEach((e) => {
-  const b = document.createElement("button");
-  b.type = "button"; b.textContent = e;
-  b.addEventListener("click", () => setEmoji(e));
-  $("emojiRow").appendChild(b);
+// Typing a different food clears the picked numbers so they don't stick around.
+$("fName").addEventListener("input", () => {
+  if (pickedName && $("fName").value.trim() !== pickedName) {
+    $("fCal").value = ""; $("fProt").value = ""; $("fPick").value = "";
+    pickedName = null; $("fFav").parentElement.hidden = false;
+  }
 });
-document.querySelectorAll("#fType button").forEach((b) => b.addEventListener("click", () => setType(b.dataset.v)));
+
+// Photo: shrink it to a small thumbnail so it fits in phone storage.
+$("fPhoto").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const size = 160, c = document.createElement("canvas");
+    const s = Math.min(img.width, img.height);
+    c.width = c.height = size;
+    c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+    photoData = c.toDataURL("image/jpeg", 0.7);
+    $("photoPreview").innerHTML = "";
+    $("photoPreview").style.backgroundImage = `url(${photoData})`;
+    $("photoHint").textContent = "Looking good! Auto-estimates coming soon 🤖";
+    $("photoClear").hidden = false;
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
+});
+function clearPhoto() {
+  photoData = null; $("fPhoto").value = "";
+  $("photoPreview").style.backgroundImage = ""; $("photoPreview").textContent = "📸";
+  $("photoHint").textContent = "Add a photo of your plate";
+  $("photoClear").hidden = true;
+}
+$("photoClear").addEventListener("click", clearPhoto);
 
 $("addBtn").addEventListener("click", () => {
   $("mealForm").reset();
+  clearPhoto(); fillPicker(); pickedName = null;
+  $("fFav").parentElement.hidden = false;
   const n = new Date();
   $("fTime").value = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
-  setType("meal"); setEmoji("🍽️");
   openSheet("mealSheet");
 });
 $("mealForm").addEventListener("submit", (e) => {
   e.preventDefault();
-  const meal = {
-    emoji: mealEmoji, name: $("fName").value.trim(), type: mealType,
-    time: $("fTime").value || "--:--", cal: Math.max(0, +$("fCal").value || 0), protein: Math.max(0, +$("fProt").value || 0),
-  };
+  const name = $("fName").value.trim();
+  const cal = Math.max(0, +$("fCal").value || 0), protein = Math.max(0, +$("fProt").value || 0);
+  const pick = CLASSICS.find((c) => c.name === name) || loadFavs().find((f) => f.name === name);
+  const emoji = pick ? pick.emoji : guessEmoji(name);
+  const meal = { emoji, name, type: cal < SNACK_UNDER ? "snack" : "meal", time: $("fTime").value || "--:--", cal, protein };
+  if (photoData) meal.photo = photoData;
   today.meals.push(meal);
   today.meals.sort((a, b) => a.time.localeCompare(b.time));
+  if ($("fFav").checked) {
+    const favs = loadFavs().filter((f) => f.name.toLowerCase() !== name.toLowerCase());
+    favs.unshift({ emoji, name, cal, protein });
+    store.set("fuelup.favs", favs.slice(0, 20));
+  }
   saveDays(days); closeSheets(); render();
   const left = targetFor(today) - eatenOf(today);
-  toast(left < 0 ? `Nom! …uh-oh, ${fmt(-left)} over 🫣` : `Nom nom! +${fmt(meal.cal)} cal 😋`);
+  toast(left < 0 ? `Nom! …uh-oh, ${fmt(-left)} over 🫣` : $("fFav").checked ? "Nom nom! Saved to favourites ⭐" : `Nom nom! +${fmt(meal.cal)} cal 😋`);
 });
 
 // Step sheet

@@ -236,3 +236,19 @@ input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 
   transition: transform .4s cubic-bezier(.3,1.6,.5,1);
 }
 .toast.show { transform: translate(-50%, 0); }
+
+/* Meal sheet v2 */
+.sheet h2 { margin-bottom: 12px; }
+.photo-row { position: relative; margin-bottom: 12px; }
+.photo-btn { display: flex; align-items: center; gap: 12px; background: var(--sky); border: var(--border); border-radius: 18px; padding: 10px 12px; box-shadow: 3px 3px 0 var(--ink); cursor: pointer; }
+.photo-btn b { display: block; font-family: "Fredoka", sans-serif; font-size: 18px; }
+.photo-btn small { font-size: 13px; }
+.photo-preview { width: 56px; height: 56px; border-radius: 14px; border: 2.5px solid var(--ink); background: #fff center / cover no-repeat; display: grid; place-items: center; font-size: 28px; flex-shrink: 0; }
+.photo-clear { position: absolute; top: -8px; right: -6px; width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid var(--ink); background: #fff; font: 800 14px "Nunito", sans-serif; cursor: pointer; }
+.field select { font: 800 16px "Nunito", sans-serif; color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 10px; width: 100%; }
+.or { text-align: center; font-size: 12px; color: var(--muted); margin: 10px 0 0; text-transform: uppercase; letter-spacing: .08em; }
+.fav-toggle { display: flex; align-items: center; gap: 8px; margin: 14px 0; font-size: 15px; cursor: pointer; }
+.fav-toggle[hidden] { display: none; }
+.fav-toggle input { width: 22px; height: 22px; accent-color: var(--pink); }
+.meal-emoji { background-size: cover; background-position: center; }
+.action[hidden] { display: none; }

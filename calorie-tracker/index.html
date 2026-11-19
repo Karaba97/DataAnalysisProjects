@@ -102,23 +102,29 @@
 
 <section class="sheet" id="mealSheet" hidden aria-label="Log a meal">
   <div class="sheet-grab"></div>
-  <h2>What did you munch? 😋</h2>
-  <p class="sheet-sub">Tap a quick-pick or type it in.</p>
-  <div class="picks" id="picks"></div>
+  <h2>What are you having? 😋</h2>
   <form id="mealForm" autocomplete="off">
+    <div class="photo-row">
+      <label class="photo-btn" for="fPhoto">
+        <span class="photo-preview" id="photoPreview">📸</span>
+        <span><b>Snap or upload</b><small id="photoHint">Add a photo of your plate</small></span>
+      </label>
+      <input id="fPhoto" type="file" accept="image/*" capture="environment" hidden>
+      <button type="button" class="photo-clear" id="photoClear" hidden aria-label="Remove photo">✕</button>
+    </div>
+    <label class="field wide">Pick a food
+      <select id="fPick">
+        <option value="">Choose from the list…</option>
+      </select>
+    </label>
+    <div class="or">or type it in</div>
     <div class="form-grid">
       <label class="field wide">Food<input id="fName" required placeholder="e.g. Ugali, sukuma & beef"></label>
-      <div class="field wide">Type
-        <div class="toggle" id="fType">
-          <button type="button" data-v="meal" class="on">🍽️ Meal</button>
-          <button type="button" data-v="snack">🍪 Snack</button>
-        </div>
-      </div>
       <label class="field">Calories<input id="fCal" type="number" inputmode="numeric" min="0" required placeholder="450"></label>
       <label class="field">Protein (g)<input id="fProt" type="number" inputmode="numeric" min="0" required placeholder="25"></label>
       <label class="field">Time<input id="fTime" type="time"></label>
     </div>
-    <div class="emoji-row" id="emojiRow"></div>
+    <label class="fav-toggle"><input id="fFav" type="checkbox"> <span>⭐ Save to my favourites</span></label>
     <button class="go-btn" type="submit">Gobble it! 🍴</button>
   </form>
 </section>
